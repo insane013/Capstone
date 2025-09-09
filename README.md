@@ -2,12 +2,15 @@
 
 This project is a web application developed for creating tasks, tracking its states and assign them to specific user.
   * The application contain two web components - a web and a web API applications.
-  * The web application is a [ASP.NET Core MVC application]
-  * The web API application is a [controller-based ASP.NET Core Web API application].
+  * The web application is a ASP.NET Core MVC application
+  * The web API application is a controller-based ASP.NET Core Web API application.
   * The data store is SQL Light relational database.
-  * To access application data the application was used [Entity Framework Core].
-  * The application is using the [ASP.NET Core Identity API] to manage users, passwords and profile data. Also, it uses JWT token authentification system.
+  * To access application data the application was used Entity Framework Core.
+  * The application is using the ASP.NET Core Identity API to manage users, passwords and profile data. Also, it uses JWT token authentification system.
 
+## Demo
+
+Screenshots of the Capstone project you can find in images folder here ([Images](images))
 
 ## Backlog
 
