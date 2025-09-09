@@ -64,6 +64,6 @@ The requirements for the application are described in the [Solution Requirements
 2. Open the solution.
 3. Select executable project as TodoListWebApp.WebApi and https option. Press CTRL+F9.
 4. Then select executable project as TodoListWebApp.WebApp and http option. Run it.
-5. Open WebApp in your browser (by default it is located on http://localhost:5000)
+5. Open WebApp in your browser (by default it is located on http://localhost:5000/TodoLists)
 
 You can specify url and used port in launchSettings.json file.
