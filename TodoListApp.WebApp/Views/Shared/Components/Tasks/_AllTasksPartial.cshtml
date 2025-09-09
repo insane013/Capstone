@@ -1,0 +1,209 @@
+@using System.Text.Json
+@using TodoListApp.Models.TodoTask
+@using Microsoft.AspNetCore.Http.Extensions
+@using static TodoListApp.Models.TodoTask.TodoTaskModel
+@using static TodoListApp.Models.TodoList.TodoAccessModel
+@model TodoListApp.Models.WebApp.TaskListWebModel
+
+@{
+	Layout = null;
+
+	string view;
+	if (ViewBag.View is not null)
+	{
+		view = ViewBag.View;
+	}
+	else
+	{
+		view = "list";
+	}
+
+	var returnUrl = Context.Request.GetEncodedUrl();
+}
+
+<div class="task-list-header pt-2 bg-light" style="top: var(--page-header-height, 60px); position: sticky; z-index: 1020;">
+	<div class="task-list-header d-flex flex-wrap align-items-center justify-content-between bg-secondary p-3 mb-3 rounded shadow-sm"
+		 style="min-height: 70px;">
+
+		<div class="d-flex align-items-center flex-grow-1">
+			<h3 class="text-light me-5 mb-0">Tasks:</h3>
+
+			<form asp-action="ApplySearch" asp-controller="TodoTask" class="d-flex align-items-center border-dark bg-white rounded-pill px-2" role="search" style="height: 36px; min-width: 260px;">
+				<button type="submit" class="btn d-flex align-items-center justify-content-center me-2"
+						style="width: 36px; height: 36px; border: none; background-color: transparent;">
+					<i class="fas fa-search"></i>
+				</button>
+				<input type="hidden" class="form-control" name="todoListId" value="@Model.TodoListId">
+				<input type="hidden" class="form-control" name="returnUrl" value="@returnUrl">
+				<input type="hidden" class="form-control" name="filterName" value="@Model.FilterName">
+				<input value="@Model.Filter.SearchOptions?.Title" name="Title" class="form-control border-0 me-2" type="search" placeholder="Search todo list..." aria-label="Search" style="box-shadow: none;">
+				<button type="button" class="btn btn-outline-light text-white me-5 d-flex align-items-center"
+						data-bs-toggle="modal" data-bs-target="#searchSettingsModal"
+						data-list-id="@Model.TodoListId">
+					<i class="fas fa-sliders-h"></i>
+				</button>
+			</form>
+		</div>
+
+		<div class="d-flex align-items-center mt-3 mt-md-0">
+			<button type="button" class="btn btn-outline-light text-white me-5 d-flex align-items-center"
+					data-bs-toggle="modal" data-bs-target="#taskFilterModal"
+					data-list-id="@Model.TodoListId">
+				<i class="fas fa-sliders-h me-1"></i> Filter
+			</button>
+
+			@if (view == "list" && Model.AccessLevel == TodoRole.Owner)
+			{
+				<a asp-controller="TodoTask" asp-action="Create" asp-route-listId="@Model.Filter.TodoListId"
+				   class="btn bg-success btn-outline-light text-dark fs-6 fw-bold rounded-3 d-flex align-items-center justify-content-center shadow-sm"
+				   style="width: 120px;">
+					<i class="fas fa-plus text-white me-2"></i>
+					<span class="text-white">Create</span>
+				</a>
+			}
+		</div>
+	</div>
+</div>
+
+@if (Model.TodoTasks.Any())
+{
+	@foreach (var task in Model.TodoTasks)
+	{
+		if (Model.AccessLevel == TodoRole.Owner) {
+			@await Html.PartialAsync("_TaskPartialLineOwner.cshtml", new TodoTaskWebModel {TaskModel = task, AccessLevel = Model.AccessLevel })
+		}
+		else
+		{
+			@await Html.PartialAsync("_TaskPartialLine.cshtml", new TodoTaskWebModel { TaskModel = task, AccessLevel = Model.AccessLevel })
+		}
+	}
+
+	var returnUrlUri = new Uri(returnUrl);
+
+	<div class="d-flex justify-content-center">
+		<div page-model="@Model.Pagination"
+			 page-classes-enabled="true"
+			 page-class="btn"
+			 page-class-normal="btn-outline-dark"
+			 page-class-selected="btn-primary"
+			 page-action="ApplyFilterJson"
+			 page-controller="TodoTask"
+			 page-filter-name="@Model.FilterName"
+			 page-return-url="@returnUrlUri"
+			 page-filter-storage="task-filter-storage">
+		</div>
+	</div>
+}
+else
+{
+	<div class="bg-white rounded p-3 text-muted">No Tasks yet..</div>
+}
+
+<input type="hidden" id="task-filter-storage" value='@Html.Raw(JsonSerializer.Serialize(Model.Filter))' />
+
+<div class="modal fade" id="taskFilterModal" tabindex="-1" aria-labelledby="taskFilterModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<form asp-action="ApplyFilterForm" asp-controller="TodoTask" id="taskFilterForm" method="post">
+				<input type="hidden" class="form-control" id="TodoListId" name="TodoListId" value="@Model.TodoListId" />
+				<input type="hidden" name="returnUrl" value="@returnUrl" />
+				<input type="hidden" name="filterName" value="@Model.FilterName" />
+
+				<div class="form-group form-check">
+					<input asp-for="Filter.ShowComplete" type="checkbox" class="form-check-input" id="ShowComplete" value="true"/>
+					<label class="form-check-label" for="ShowComplete">Show Completed</label>
+				</div>
+
+				<div class="form-group form-check">
+					<input asp-for="Filter.ShowOverdue" type="checkbox" class="form-check-input" id="ShowOverdue" value="true" />
+					<label class="form-check-label" for="ShowOverdue">Show Overdue</label>
+				</div>
+
+				<div class="form-group form-check">
+					<input asp-for="Filter.ShowPending" type="checkbox" class="form-check-input" id="ShowPending" value="true"/>
+					<label class="form-check-label" for="ShowPending">Show Pending</label>
+				</div>
+
+				<div class="form-group">
+					<label for="DeadlineBefore">Deadline Before</label>
+					<input type="date" class="form-control" id="DeadlineBefore" name="DeadlineBefore" value="@Model.Filter.DeadlineBefore?.ToString("yyyy-MM-dd")" />
+				</div>
+
+				<div class="form-group">
+					<label for="DeadlineAfter">Deadline After</label>
+					<input type="date" class="form-control" id="DeadlineAfter" name="DeadlineAfter" value="@Model.Filter.DeadlineAfter?.ToString("yyyy-MM-dd")" />
+				</div>
+
+				<div class="form-group form-check">
+					<input asp-for="Filter.OnlyAssigned" type="checkbox" class="form-check-input" id="OnlyAssigned" value="true" />
+					<label class="form-check-label" for="OnlyAssigned">Only Assigned</label>
+				</div>
+
+				<div class="form-group">
+					<label for="SortBy" class="form-label">Sort By:</label>
+					<select asp-for="Filter.SortBy" class="form-select" required
+					asp-items="Html.GetEnumSelectList<TodoTaskFilter.SortOption>()">
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="Priorities">Priorities</label><br />
+					@foreach (var priority in Enum.GetValues(typeof(TaskPriority)).Cast<TaskPriority>())
+					{
+						<div class="form-check form-check-inline">
+							<input type="checkbox" class="form-check-input" name="Filter.Priorities" value="@priority"
+							@(Model.Filter.Priorities.Contains(priority) ? "checked" : "") />
+							<label for="Filter.Priorities" class="form-check-label">@priority</label>
+						</div>
+					}
+				</div>
+
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-primary">Apply Filter</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="searchSettingsModal" tabindex="-1" aria-labelledby="searchSettingsModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="searchSettingsModalLabel">Search Settings</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form asp-action="ApplySearch" asp-controller="TodoTask" method="post">
+				<div class="modal-body">
+					<input type="hidden" class="form-control" name="todoListId" value="@Model.TodoListId">
+					<input type="hidden" class="form-control" name="returnUrl" value="@returnUrl">
+					<input type="hidden" class="form-control" name="filterName" value="@Model.FilterName">
+					<div class="mb-3">
+						<label for="titleSearch" class="form-label">Task title contains</label>
+						<input type="text" class="form-control" id="titleSearch" name="Title" value="@Model.Filter.SearchOptions?.Title">
+					</div>
+					<div class="mb-3">
+						<label for="createdDate" class="form-label">Created on</label>
+						<input type="date" class="form-control" name="CreatedDate"
+							   value="@(Model.Filter.SearchOptions?.CreatedDate.HasValue == true
+									? Model.Filter.SearchOptions.CreatedDate.Value.ToString("yyyy-MM-dd")
+									: "")" />
+					</div>
+					<div class="mb-3">
+						<label for="dueDate" class="form-label">Due on</label>
+						<input type="date" class="form-control" name="Deadline"
+								value="@(Model.Filter.SearchOptions?.Deadline.HasValue == true
+									? Model.Filter.SearchOptions.Deadline.Value.ToString("yyyy-MM-dd")
+									: "")" />
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Apply</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+

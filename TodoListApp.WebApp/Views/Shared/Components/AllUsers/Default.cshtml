@@ -1,0 +1,47 @@
+@model TodoListApp.Models.WebApp.UsersFromTodoListWebModel
+
+@{
+	Layout = null;
+
+	var users = Model.Users;
+}
+
+<div class="pt-2 bg-light" style="top: var(--page-header-height, 60px); position: sticky; z-index: 1020;">
+	<div class="d-flex align-items-center justify-content-between bg-success p-3 mb-3 rounded shadow-sm" style="min-height: 70px;">
+		<h3 class="text-light me-5 mb-0">Users:</h3>
+
+		<button type="button" class="reassign-btn btn btn-primary btn-sm text-white ms-3 d-inline-flex align-items-center"
+				data-bs-toggle="modal"
+				data-bs-target="#inviteModal"
+				data-list-id="@Model.TodoListId">
+			<i class="fas fa-user-edit me-1"></i> Invite
+		</button>
+	</div>
+
+	<div class="bg-white border rounded p-3 shadow-sm">
+		@if (users?.Count > 0)
+		{
+			@foreach (var user in users)
+			{
+				<div class="d-flex align-items-center mb-3 last-child-mb-0">
+					<i class="fas fa-user-circle fa-2x me-2 text-secondary"></i>
+					<div class="flex-grow-1">
+						<div class="fw-bold text-elipsis">@user.Name</div>
+						<div class="text-muted small text-elipsis">@user.Email</div>
+					</div>
+					<div>
+						<!-- 👑 Owner, ✏️ Editor, 👁 Viewer -->
+						<span title="Owner">👑</span>
+					</div>
+				</div>
+			}
+		}
+		else
+		{
+			<p class="text-muted">No users in this list..</p>
+		}
+		<div class="d-flex">
+			<a asp-action="Details" asp-controller="TodoList" asp-route-view="invites" class="text-muted ms-auto">Show invites</a>
+		</div>
+	</div>
+</div>

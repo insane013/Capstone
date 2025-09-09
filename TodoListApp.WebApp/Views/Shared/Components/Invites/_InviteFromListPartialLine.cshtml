@@ -1,0 +1,32 @@
+@model TodoListApp.Models.Invite.InviteModel
+
+@{
+	Layout = null;
+}
+
+<div class="bg-white align-items-center rounded shadow-sm p-3 flex-grow-1 border-start border-5 border-primary">
+	<div class="d-flex align-items-center justify-content-between">
+		<div class="d-flex align-items-center link-dark w-100 text-start">
+			<div class="d-grid w-100 gap-3 task-line-view">
+
+				<vc:user user-id=@Model.UserId />
+
+				<p class="mb-0 text-muted">
+					@Model.Message
+				</p>
+
+				<p class="mb-0 text-muted">
+					@Model.CreatedAt.ToString("yyyy-mm-dd hh:mm")
+				</p>
+			</div>
+		</div>
+
+		<div class="ms-3 d-flex align-items-center">
+			<a asp-controller="Invite" asp-action="Delete" asp-route-id="@Model.Id" class="text-decoration-none">
+				<i class="fas fa-trash-alt p-2 text-danger bg-light fs-6 rounded-3"></i>
+			</a>
+		</div>
+	</div>
+</div>
+
+

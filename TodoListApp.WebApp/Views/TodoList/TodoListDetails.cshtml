@@ -1,0 +1,113 @@
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using TodoListApp.Models.TodoTask
+@using TodoListApp.Models.Invite
+@model TodoListApp.Models.TodoList.TodoListModel;
+
+@{
+	Layout = "_TodoListLayout";
+
+	string view;
+	if (ViewBag.View is not null)
+	{
+		view = ViewBag.View;
+	}
+	else
+	{
+		view = "tasks";
+	}
+}
+
+@section BreadCrumbs {
+	<nav class="fs-5 fw-bold">
+		@if (view == "tasks")
+		{
+			<span><a asp-action="AllTodoLists" asp-controller="TodoList" class="text-white text-decoration-underline">TodoLists</a></span>
+			<span class="text-white mx-2">/</span>
+			<span class="text-white">Details</span>
+		}
+		@if (view == "invites")
+		{
+			<span><a asp-action="AllTodoLists" asp-controller="TodoList" class="text-white text-decoration-underline">TodoLists</a></span>
+			<span class="text-white mx-2">/</span>
+			<span><a asp-action="Details" asp-controller="TodoList" asp-route-id="@Model.TodoListId" class="text-white text-decoration-underline">Details</a></span>
+			<span class="text-white mx-2">/Invites</span>
+		}
+	</nav>
+}
+
+@section HeaderMain {
+	@if (@Model != null)
+	{
+		<div class="bg-white p-3">
+			<div class="d-flex align-items-center">
+				<h2 class="text-dark">@Model.Title #@Model.TodoListId</h2>
+
+				<div class="ms-5">
+					<a asp-controller="TodoList" asp-action="Edit" asp-route-id="@Model.TodoListId" class="text-decoration-none mr-1">
+						<i class="fas fa-pen-to-square p-2 text-dark bg-light fs-5 rounded-3"></i>
+					</a>
+					<a asp-controller="TodoList" asp-action="DeleteGet" asp-route-id="@Model.TodoListId" class="text-decoration-none mr-1">
+						<i class="fas fa-trash-alt p-2 text-white bg-danger fs-5 rounded-3"></i>
+					</a>
+				</div>
+			</div>
+
+			<div>
+				<p class="text-dark">@Model.Description</p>
+				<div class="row">
+					<p class="text-dark">
+						Created:
+						<span class="text-muted">@Model.CreatedTime.ToString("yyyy-MM-dd HH:mm")</span>
+					</p>
+					<p class="text-dark">
+						Owner:
+						<vc:user user-id=@Model.OwnerId />
+					</p>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+@{
+	var filterCookie = HttpContextAccessor?.HttpContext?.Request.Cookies["TodoTaskFilter"];
+
+	var taskFilter = filterCookie ?? $"{{ \"TodoListId\": {Model.TodoListId} }}";
+
+	var inviteFilter = new InviteFilter
+			{
+				ForTodoList = Model.TodoListId
+			};
+}
+
+<div class="container m-0 mw-100">
+	<div class="row">
+		<div class="col col-9 px-0">
+			@if (@Model != null)
+			{
+				@if(view == "tasks")
+				{
+					<div id="task-list-container">
+						@await Component.InvokeAsync("Tasks", new
+							{
+								todoListId = Model.TodoListId,
+								filterName = "TodoTaskFilter",
+								jsonFilter = taskFilter,
+								accessLevel = Model.CurrentUserAccessInfo?.Role,
+							})
+					</div>
+				}
+				else
+				{
+					@await Component.InvokeAsync("Invites", new { filter = inviteFilter })
+				}
+			}
+		</div>
+		<div class="col col-3">
+			@if (@Model != null)
+			{
+				@await Component.InvokeAsync("AllUsers", new { todoListId = Model.TodoListId })
+			}
+		</div>
+	</div>
+</div>

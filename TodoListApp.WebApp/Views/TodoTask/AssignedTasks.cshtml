@@ -1,0 +1,24 @@
+@using TodoListApp.Models.TodoTask
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+	var filterCookie = HttpContextAccessor?.HttpContext?.Request.Cookies["AssignedFilter"];
+
+	var taskFilter = filterCookie ?? $"{{ \"OnlyAssigned\": true }}";
+
+	Layout = "/Views/TodoList/_TodoListLayout.cshtml";
+}
+
+@section BreadCrumbs {
+	<nav class="fs-5 fw-bold">
+		<span class="text-white">Assigned tasks</span>
+	</nav>
+}
+
+@section HeaderMain {
+	<div class="bg-white p-3">
+		<h2 class="text-dark">ASSIGNED TASKS</h2>
+	</div>
+}
+
+@await Component.InvokeAsync("Tasks", new { jsonFilter = taskFilter, filterName = "AssignedFilter", view = "user" })

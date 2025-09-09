@@ -1,0 +1,48 @@
+@model TodoListApp.Models.WebApp.InvitesFromTodoWebModel
+
+@{
+	Layout = null;
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between bg-primary p-3 mb-3 rounded shadow-sm"
+style="min-height: 70px;">
+	<div class="d-flex align-items-center flex-grow-1">
+		<h3 class="text-light me-5 mb-0">Invites:</h3>
+
+		<form class="d-flex align-items-center border-dark bg-white rounded-pill px-2" role="search" style="height: 36px; min-width: 260px;">
+			<button type="submit" class="btn d-flex align-items-center justify-content-center me-2"
+					style="width: 36px; height: 36px; border: none; background-color: transparent;">
+				<i class="fas fa-search"></i>
+			</button>
+			<input class="form-control border-0 me-2" type="search" placeholder="Search todo list..." aria-label="Search" style="box-shadow: none;">
+		</form>
+	</div>
+
+	<div class="d-flex align-items-center mt-3 mt-md-0">
+		<button type="button" class="btn btn-outline-light text-white me-5 d-flex align-items-center"
+				data-bs-toggle="modal" data-bs-target="#searchSettingsModal">
+			<i class="fas fa-sliders-h me-1"></i> Filter
+		</button>
+
+		<a asp-controller="Invite" asp-action="Create" asp-route-todoListId="@Model.TodoListId"
+		   class="btn bg-success btn-outline-light text-dark fs-6 fw-bold rounded-3 d-flex align-items-center justify-content-center shadow-sm"
+		   style="width: 120px;">
+			<i class="fas fa-plus text-white me-2"></i>
+			<span class="text-white">Create</span>
+		</a>
+	</div>
+</div>
+
+
+@if (Model.Invites.Any())
+{
+	@foreach (var task in Model.Invites)
+	{
+		@await Html.PartialAsync("_InviteFromListPartialLine.cshtml", task)
+	}
+}
+else
+{
+	<div class="bg-white rounded p-3 text-muted">No Invites in this list..</div>
+}
+

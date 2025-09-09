@@ -1,0 +1,66 @@
+@using Microsoft.AspNetCore.Http.Extensions
+@using System.Text.Json
+@model AllTodoListsWebModel
+
+@{
+	bool table = false;
+
+	var returnUrl = Context.Request.GetEncodedUrl();
+}
+
+@section PageHeader {
+	<div class="d-flex flex-column rounded-3 border-bottom shadow-sm">
+		<div class="d-flex align-items-center bg-primary p-3">
+			<h1 class="text-white fw-bold">My Todo Lists</h1>
+		</div>
+	</div>
+}
+
+
+@if (table) {
+	@if (Model != null)
+	{
+		@foreach (var todo in Model.TodoLists)
+		{
+			@await Html.PartialAsync("_TodoListIcoPartial", todo)
+		}
+	}
+}
+else
+{
+	<div class="row">
+		@if (Model != null)
+		{
+			@foreach (var todo in Model.TodoLists)
+			{
+				<div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-3">
+					@await Html.PartialAsync("_TodoListIcoPartial", todo)
+				</div>
+			}
+		}
+		<div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-3">
+			<a asp-controller="TodoList" asp-action="Create" class="d-flex flex-column justify-content-center align-items-center bg-white border border-muted border-2 rounded-4 shadow-sm text-decoration-none h-100 p-4" style="min-height: 160px;">
+				<i class="fas fa-plus fs-1 text-muted mb-2"></i>
+				<span class="fw-bold text-muted">Add new</span>
+			</a>
+		</div>
+	</div>
+
+	var returnUrlUri = new Uri(returnUrl);
+
+	<div class="d-flex justify-content-center">
+		<div page-model="@Model?.Pagination"
+			 page-classes-enabled="true"
+			 page-class="btn"
+			 page-class-normal="btn-outline-dark"
+			 page-class-selected="btn-primary"
+			 page-action="ApplyFilterJson"
+			 page-controller="TodoList"
+			 page-filter-name="@Model?.FilterName"
+			 page-return-url="@returnUrlUri"
+			 page-filter-storage="list-filter-storage">
+		</div>
+	</div>
+
+	<input type="hidden" id="list-filter-storage" value='@Html.Raw(JsonSerializer.Serialize(Model?.Filter))' />
+}

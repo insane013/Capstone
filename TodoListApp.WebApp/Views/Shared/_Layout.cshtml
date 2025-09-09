@@ -1,0 +1,149 @@
+@using TodoListApp.Models.TodoTask
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - ToDoListApp.WebApp</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/lib/fontawesome-free/css/all.min.css" />
+	<link rel="stylesheet" href="~/lib/tagify/tagify.css" />
+	<link rel="stylesheet" href="~/ToDoListApp.WebApp.styles.css" asp-append-version="true" />
+</head>
+<body class="bg-light">
+	<div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+		@if (TempData["ErrorMessage"] != null)
+		{
+			<div class="toast align-items-center text-bg-danger border-0 show mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+				<div class="d-flex">
+					<div class="toast-body">
+						@TempData["ErrorMessage"]
+					</div>
+					<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+				</div>
+			</div>
+		}
+		@if (TempData["Success"] != null)
+		{
+			<div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+				<div class="d-flex">
+					<div class="toast-body">
+						@TempData["Success"]
+					</div>
+					<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+				</div>
+			</div>
+		}
+	</div>
+
+	<div id="page-header" class="position-fixed w-100" style="z-index: 1030; padding-left: 360px;">
+		<div class="container-fluid h-100 d-flex p-0 flex-column">
+			@await RenderSectionAsync("PageHeader", required: false)
+		</div>
+	</div>
+
+	<!-- Фиксированный сайдбар -->
+	<aside>
+		<div class="position-fixed top-0 start-0 bg-white rounded-3 p-3 shadow-sm" style="width: 350px; height: 100vh; z-index: 1031;">
+			<div class="d-flex flex-column">
+				<a asp-action="AllTodoLists" asp-controller="TodoList" class="navbar-brand fs-1 text-success fw-bold mb-3">
+					<i class="fas fa-feather text-primary fs-2"></i>
+					Capstone
+				</a>
+
+				<div class="user-info ms-3">
+					@await Html.PartialAsync("_UserInfoPartial")
+				</div>
+
+				<nav class="pt-5">
+					<a asp-action="AllTodoLists" asp-controller="TodoList" class="btn btn-light d-block text-start mb-2 text-dark shadow-sm text-decoration-none">My Todo Lists</a>
+
+					<a asp-action="AssignedTasks" asp-controller="TodoTask" class="btn btn-light d-block text-start mb-2 text-dark shadow-sm text-decoration-none">Pending tasks</a>
+
+					<a asp-action="GetFromUser" asp-controller="Invite" class="btn btn-light d-block text-start mb-2 text-dark shadow-sm text-decoration-none">Pending Invites</a>
+
+					<a asp-action="AvailableTags" asp-controller="Tag" class="btn btn-light d-block text-start mb-2 text-dark shadow-sm text-decoration-none">Tags</a>
+				</nav>
+			</div>
+		</div>
+	</aside>
+
+	<!-- Контент с отступом слева и сверху, выровненный с сайдбаром -->
+	<div class="container-fluid" style="padding-left: 360px;">
+		<main id="main-content" role="main" class="pb-3">
+			@RenderBody()
+		</main>
+	</div>
+
+	@await Html.PartialAsync("Modals/_PriorityModalPartial")
+	@await Html.PartialAsync("Modals/_ReassignUserModalPartial")
+	@await Html.PartialAsync("Modals/_EditCommentModalPartial")
+	@await Html.PartialAsync("Modals/_DeleteCommentModalPartial")
+	@await Html.PartialAsync("Modals/_TagModalPartial")
+
+	<!-- Invite users Modal -->
+	<div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<form asp-action="Invite" asp-controller="Invite" method="post" id="inviteForm">
+					<div class="modal-header">
+						<h5 class="modal-title" id="inviteModalLabel">Invite Users</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="inviteListId" name="TodoListId" />
+						<div class="mb-3">
+							<label for="inviteEmails" class="form-label">User Email(s)</label>
+							<input name="inviteEmails" id="inviteEmails" class="form-control" placeholder="Enter one or more emails..." required />
+							<input type="hidden" name="Users" id="usersHidden" />
+						</div>
+						<div class="mb-3">
+							<label for="Message" class="form-label">Invite message</label>
+							<textarea name="Message" id="Message" class="form-control" placeholder="Enter your message...">We want to invite you to our cool todolist!</textarea>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Send Invites</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/lib/tagify/tagify.js"></script>
+	<script src="~/js/site.js" asp-append-version="true" defer></script>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const toastElements = document.querySelectorAll('.toast');
+			toastElements.forEach(toastEl => {
+				const t = new bootstrap.Toast(toastEl);
+				t.show();
+			});
+		});
+	</script>
+
+	<!-- Margin top equal to fixed header height -->
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const header = document.getElementById("page-header");
+			const main = document.getElementById("main-content");
+			if (header && main) {
+				const updatePadding = () => {
+					const height = header.offsetHeight;
+					main.style.paddingTop = (height) + "px";
+				};
+
+				updatePadding();
+				window.addEventListener("resize", updatePadding);
+			}
+		});
+	</script>
+
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

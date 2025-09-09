@@ -1,0 +1,65 @@
+@model TagsWebModel;
+@using Microsoft.AspNetCore.Http.Extensions
+@using System.Text.Json
+@using TodoListApp.Models.TodoTask
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+	Layout = "/Views/TodoList/_TodoListLayout.cshtml";
+
+	var returnUrl = Context.Request.GetEncodedUrl();
+}
+
+<div class="task-list-header pt-2 bg-light" style="top: var(--page-header-height, 60px); position: sticky; z-index: 1020;">
+	<div class="task-list-header d-flex flex-wrap align-items-center justify-content-between bg-secondary p-3 mb-3 rounded shadow-sm"
+		 style="min-height: 70px;">
+
+		<div class="d-flex align-items-center flex-grow-1">
+			<h3 class="text-light me-5 mb-0">Available tags:</h3>
+
+			<form asp-action="ApplySearch" asp-controller="Tag" class="d-flex align-items-center border-dark bg-white rounded-pill px-2" role="search" style="height: 36px; min-width: 260px;">
+				<button type="submit" class="btn d-flex align-items-center justify-content-center me-2"
+						style="width: 36px; height: 36px; border: none; background-color: transparent;">
+					<i class="fas fa-search"></i>
+				</button>
+				<input type="hidden" class="form-control" name="todoListId" value="@Model.TodoListId">
+				<input type="hidden" class="form-control" name="returnUrl" value="@returnUrl">
+				<input type="hidden" class="form-control" name="filterName" value="@Model.FilterName">
+				<input value="@Model.Filter.SearchOptions?.Title" name="Title" class="form-control border-0 me-2" type="search" placeholder="Search todo list..." aria-label="Search" style="box-shadow: none;">
+			</form>
+		</div>
+	</div>
+</div>
+
+@if (Model.Tags.Any())
+{
+	<div class="d-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+		@foreach (var tag in Model.Tags)
+		{
+			<a asp-action="TasksFromTag" asp-controller="TodoTask" asp-route-tag="@tag.Tag" asp-route-list="@tag.TodoListId" class="text-decoration-none text-black">
+				<div class="rounded-pill bg-white shadow-sm px-2 py-1 mb-1 last-child-mb-0 text-center">
+					@tag.TodoListTitle : @tag.Tag
+				</div>
+			</a>
+		}
+	</div>
+
+	var returnUrlUri = new Uri(returnUrl);
+
+	<div class="d-flex justify-content-center">
+		<div page-model="@Model.Pagination"
+			 page-classes-enabled="true"
+			 page-class="btn"
+			 page-class-normal="btn-outline-dark"
+			 page-class-selected="btn-primary"
+			 page-action="ApplyFilterJson"
+			 page-controller="Tag"
+			 page-filter-name="@Model.FilterName" ,
+			 page-return-url="@returnUrlUri">
+		</div>
+	</div>
+}
+else
+{
+	<div class="bg-white rounded p-3 text-muted">No Tasks yet..</div>
+}

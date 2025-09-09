@@ -1,0 +1,26 @@
+@using TodoListApp.Models.Tag
+@using TodoListApp.Models.TodoTask
+@model TodoTaskModel
+
+@{
+	Layout = null;
+
+	var tagsString = string.Join(",", Model.Tags.Select(t => t.Tag));
+	var availableString = string.Join(",", Model.AvailableTags.Select(t => t.Tag));
+}
+
+<div class="d-flex flex-wrap gap-1">
+	@foreach (var tag in Model.Tags)
+	{
+		<span class="badge rounded-pill bg-primary">
+			@tag.Tag
+		</span>
+	}
+
+	<button class="badge rounded-pill border border-primary bg-light text-primary"
+			data-bs-toggle="modal" data-bs-target="#tagModal"
+			data-list-id="@Model.TodoListId" data-task-id="@Model.TodoId"
+			data-tags="@tagsString" data-available-tags="@availableString">
+		+
+	</button>
+</div>

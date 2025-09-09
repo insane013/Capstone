@@ -1,0 +1,53 @@
+<div class="container mt-5">
+	<div class="card mx-auto shadow" style="max-width: 400px;">
+		<div class="card-body">
+			<h3 class="card-title text-center mb-4">Register</h3>
+			<form method="post" asp-action="Register" novalidate class="needs-validation">
+				<div class="mb-3">
+					<label for="Email" class="form-label">Email address</label>
+					<div class="input-group">
+						<span class="input-group-text"><i class="bi bi-envelope"></i></span>
+						<input type="email" class="form-control" id="Email" name="Email" required>
+						<div class="invalid-feedback">Please enter a valid email.</div>
+					</div>
+				</div>
+				<div class="mb-3">
+					<label for="UniqueTag" class="form-label">Unique user tag:</label>
+					<div class="input-group">
+						<span class="input-group-text"><i class="bi bi-envelope"></i></span>
+						<input type="text" class="form-control" id="UniqueTag" name="UniqueTag" required>
+						<div class="invalid-feedback">Please enter a valid tag.</div>
+					</div>
+				</div>
+				<div class="mb-3">
+					<label for="Name" class="form-label">Name:</label>
+					<div class="input-group">
+						<span class="input-group-text"><i class="bi bi-envelope"></i></span>
+						<input type="text" class="form-control" id="Name" name="Name" required>
+						<div class="invalid-feedback">Please enter a valid name.</div>
+					</div>
+				</div>
+				<div class="mb-3">
+					<label for="Password" class="form-label">Password</label>
+					<div class="input-group">
+						<span class="input-group-text"><i class="bi bi-lock"></i></span>
+						<input type="password" class="form-control" id="Password" name="Password" required>
+						<div class="invalid-feedback">Please enter a password.</div>
+					</div>
+				</div>
+				<div class="mb-3">
+					<label for="ConfirmPassword" class="form-label">Confirm Password</label>
+					<div class="input-group">
+						<span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+						<input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" required>
+						<div class="invalid-feedback">Please confirm your password.</div>
+					</div>
+				</div>
+				<button type="submit" class="btn btn-success w-100">Create Account</button>
+			</form>
+			<div class="mt-3 text-center">
+				<small>Already have an account? <a href="/Account/Login">Sign in</a></small>
+			</div>
+		</div>
+	</div>
+</div>

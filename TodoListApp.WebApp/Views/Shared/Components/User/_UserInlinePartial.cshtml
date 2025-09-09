@@ -1,0 +1,13 @@
+@model TodoListApp.Models.User.ViewUserInfo
+
+@{
+	Layout = null;
+}
+
+@if (Model != null) {
+	@Model.Email
+}
+else
+{
+	@:Cant load data
+}

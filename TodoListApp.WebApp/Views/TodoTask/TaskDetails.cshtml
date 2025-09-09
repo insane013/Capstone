@@ -1,0 +1,144 @@
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using TodoListApp.Models.Comments
+@using TodoListApp.Models.TodoTask
+@using System.Text.Json
+@using static TodoListApp.Models.TodoList.TodoAccessModel
+@model TodoTaskModel
+
+@{
+	Layout = "/Views/TodoList/_TodoListLayout.cshtml";
+
+	var tagsString = string.Join(",", Model.Tags.Select(t => t.Tag));
+	var availableString = string.Join(",", Model.AvailableTags.Select(t => t.Tag));
+}
+
+@section BreadCrumbs {
+	<nav class="fs-5 fw-bold">
+		<span><a asp-action="AllTodoLists" asp-controller="TodoList" class="text-white text-decoration-underline">TodoLists</a></span>
+		<span class="text-white mx-2">/</span>
+		<span><a asp-action="Details" asp-controller="TodoList" asp-route-id="@Model.TodoListId" class="text-white text-decoration-underline">Details</a></span>
+		<span class="text-white mx-2">/Task</span>
+	</nav>
+}
+
+@section HeaderMain {
+	@if (@Model != null)
+	{
+		<div class="bg-white p-3">
+			<div class="mb-3 d-flex align-items-md-center">
+				<h5 class="text-primary fw-bold me-3">@Model.Title</h5>
+				@if (Model.CurrentUserAccessInfo?.Role == TodoRole.Editor || Model.CurrentUserAccessInfo?.Role == TodoRole.Owner)
+				{
+					<div class="d-flex align-items-center me-3">
+						<a asp-controller="TodoTask" asp-action="Edit" asp-route-id="@Model.TodoId" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center text-decoration-none">
+							<i class="fas fa-pen me-1"></i>
+							<span>Edit</span>
+						</a>
+					</div>
+				}
+				@await Html.PartialAsync("TagListInlinePartial", Model)
+
+			</div>
+
+			<table class="table table-borderless m-0">
+				<tbody>
+					<tr>
+						<th scope="row">Description:</th>
+						<td colspan="3" class="text-muted">@Model.Description</td>
+					</tr>
+					<tr>
+						<th scope="row" class="text-nowrap">Created at:</th>
+						<td class="text-muted">@Model.CreatedTime.ToString("yyyy-MM-dd HH:mm")</td>
+						<th scope="row" class="text-nowrap">Last update:</th>
+						<td class="text-muted">
+							@if (Model.UpdatedTime != null)
+							{
+								@Model.UpdatedTime?.ToString("yyyy-MM-dd HH:mm")
+							}
+							else
+							{
+								<span class="fst-italic">Not updated yet</span>
+							}
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="text-nowrap">Deadline:</th>
+						<td><span class="text-warning">@Model.Deadline.ToString("yyyy-MM-dd HH:mm")</span></td>
+						<th scope="row" class="text-nowrap">Priority:</th>
+						<td>
+							<span class="text-muted">
+								<i class="
+                            @(
+                                Model.Priority switch {
+                                    TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Critical => "fas fa-skull-crossbones text-danger",
+                                    TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.High => "fas fa-exclamation-triangle text-warning",
+                                    TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Standart => "fas fa-circle text-primary",
+                                    TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Low => "fas fa-arrow-down text-muted",
+                                    _ => "fas fa-question-circle"
+                                }
+                            ) me-1">
+								</i>
+								@Model.Priority
+							</span>
+							@if (Model.CurrentUserAccessInfo?.Role == TodoRole.Editor || Model.CurrentUserAccessInfo?.Role == TodoRole.Owner)
+							{
+								<button type="button" class="btn btn-outline-secondary btn-sm ms-3 d-inline-flex align-items-center"
+								data-bs-toggle="modal" data-bs-target="#priorityModal"
+								data-task-id="@Model.TodoId" data-list-id="@Model.TodoListId" data-priority="@Model.Priority">
+									<i class="fas fa-arrow-up-wide-short me-1"></i> Change
+								</button>
+							}
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">Assigned user:</th>
+						<td>
+							<vc:user user-id=@Model.AssignedUserId />
+							@if (Model.CurrentUserAccessInfo?.Role == TodoRole.Editor || Model.CurrentUserAccessInfo?.Role == TodoRole.Owner)
+							{
+								<button type="button" class="reassign-btn btn btn-outline-primary btn-sm ms-3 d-inline-flex align-items-center"
+								data-bs-toggle="modal" data-bs-target="#reassignModal"
+								data-task-id="@Model.TodoId" data-todo-list-id="@Model.TodoListId" data-user-id="@Model.AssignedUserId">
+									<i class="fas fa-user-edit me-1"></i> Change
+								</button>
+							}
+						</td>
+						<td>
+							@if (Model.CurrentUserAccessInfo?.Role == TodoRole.Editor || Model.CurrentUserAccessInfo?.Role == TodoRole.Owner)
+							{
+								<a asp-controller="TodoTask" asp-action="Delete" asp-route-id="@Model.TodoId" class="btn btn-danger btn-sm d-inline-flex align-items-center text-decoration-none">
+									<i class="fas fa-trash-alt me-1"></i>
+									<span>Delete</span>
+								</a>
+							}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="d-flex flex-wrap align-items-center justify-content-between bg-secondary p-3 mb-3 rounded shadow-sm">
+			<div class="d-flex align-items-center flex-grow-1">
+				<h3 class="text-light me-5 mb-0">Comments:</h3>
+			</div>
+		</div>
+	}
+}
+
+@{
+	var filterCookie = HttpContextAccessor?.HttpContext?.Request.Cookies["CommentFilter"];
+
+	var commentFilter = filterCookie ?? $"{{ \"TaskId\": {Model.TodoId} }}";
+}
+
+@if (Model != null)
+{
+	<div id="task-list-container">
+		@await Component.InvokeAsync("Comments", new
+			{
+				taskId = Model.TodoId,
+				filterName = "CommentFilter",
+				jsonFilter = commentFilter,
+				accessLevel = Model.CurrentUserAccessInfo?.Role,
+			})
+	</div>
+}

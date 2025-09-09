@@ -1,0 +1,13 @@
+@model TodoListApp.Models.User.ViewUserInfo
+
+@{
+	string userName = Model.Name ?? Model.Email;
+}
+
+<div class="d-flex align-items-center justify-content-between cursor-pointer" style="cursor: pointer;">
+	<div class="d-flex align-items-center overflow-hidden" style="min-width: 0;">
+		<i class="fas fa-user-circle fa-2x me-2 text-secondary"></i>
+		<span class="text-truncate text-black fw-bold" style="max-width: 300px;">@userName</span>
+	</div>
+	<i id="arrowIcon" class="fas fa-chevron-right text-muted"></i>
+</div>

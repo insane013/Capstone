@@ -1,0 +1,25 @@
+@model TodoListApp.Models.TodoTask.TodoTaskFilter
+@using System.Text.Json
+@using TodoListApp.Models.TodoTask
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+	var taskFilter = JsonSerializer.Serialize(Model) ?? $"{{ \"Tag\": \"{Model.Tag}\",\n\"TodoListId\": {Model.TodoListId} }}";
+	Layout = "/Views/TodoList/_TodoListLayout.cshtml";
+}
+
+@section BreadCrumbs {
+	<nav class="fs-5 fw-bold">
+		<span><a asp-action="AvailableTags" asp-controller="Tag" class="text-white text-decoration-underline">Tags</a></span>
+		<span class="text-white">/</span>
+		<span class="text-white">@Model.Tag</span>
+	</nav>
+}
+
+@section HeaderMain {
+	<div class="bg-white p-3">
+		<h2 class="text-dark">Task with tag: @Model.Tag</h2>
+	</div>
+}
+
+@await Component.InvokeAsync("Tasks", new { jsonFilter = taskFilter, filterName = "TaggedTaskFilter", view = "user" })

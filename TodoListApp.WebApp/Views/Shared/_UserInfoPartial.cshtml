@@ -1,0 +1,47 @@
+@using System.Security.Claims
+@{
+	var user = Context.User;
+	var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown ID";
+	var userName = user.Identity?.Name ?? user.FindFirst(ClaimTypes.Email)?.Value ?? "Guest";
+}
+
+<div class="bg-white border-bottom pt-3 pb-3">
+	<div id="userToggle" class="d-flex align-items-center justify-content-between cursor-pointer" data-bs-toggle="collapse" data-bs-target="#userMenu" aria-expanded="false" style="cursor: pointer;">
+		<div class="d-flex align-items-center overflow-hidden" style="min-width: 0;">
+			<i class="fas fa-user-circle fa-2x me-2 text-secondary"></i>
+			<span class="text-truncate text-black fw-bold" style="max-width: 300px;">@userName</span>
+		</div>
+		<i id="arrowIcon" class="fas fa-chevron-right text-muted"></i>
+	</div>
+	<div class="collapse mt-2" id="userMenu">
+		<span class="d-block text-decoration-none text-secondary py-1 ps-4">ID: @userId</span>
+		<a href="#" class="d-block text-decoration-none text-muted py-1 ps-4">Change Email (WIP)</a>
+		<a href="#" class="d-block text-decoration-none text-muted py-1 ps-4">Change Pasword (WIP)</a>
+		<form method="post" asp-controller="Account" asp-action="Logout" class="px-3">
+			@Html.AntiForgeryToken()
+			<button type="submit" class="btn btn-danger btn-sm w-100">Log Out</button>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+		  const toggle = document.getElementById('userToggle');
+		  const arrow = document.getElementById('arrowIcon');
+		  const collapse = document.getElementById('userMenu');
+
+		  if (collapse) {
+			collapse.addEventListener('show.bs.collapse', () => {
+			  arrow.classList.remove('fa-chevron-right');
+			  arrow.classList.add('fa-chevron-down');
+			});
+
+			collapse.addEventListener('hide.bs.collapse', () => {
+			  arrow.classList.remove('fa-chevron-down');
+			  arrow.classList.add('fa-chevron-right');
+			});
+		  }
+		});
+	</script>
+}

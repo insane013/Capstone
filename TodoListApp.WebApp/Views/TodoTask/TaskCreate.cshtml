@@ -1,0 +1,61 @@
+@model TodoListApp.Models.TodoTask.DTO.TaskCreateDto
+
+@{
+	Layout = "/Views/TodoList/_TodoListLayout.cshtml";
+
+	Uri? returnUrl = TempData["ReturnUrl"] as Uri;
+}
+
+@section BreadCrumbs {
+	<nav class="fs-5 fw-bold">
+		<span><a href="/TodoLists" class="text-white text-decoration-underline">TodoLists</a></span>
+		<span class="text-white mx-2">/</span>
+		<span><a href="/TodoLists/@Model.TodoListId" class="text-white text-decoration-underline">Tasks</a></span>
+		<span class="text-white mx-2">/</span>
+		<span class="text-white">Create</span>
+	</nav>
+}
+
+@if (@Model != null)
+{
+	<div class="bg-light">
+		<form asp-action="Create" method="post" class="p-4 bg-light rounded shadow-sm">
+			<div class="d-flex justify-content-between align-items-center bg-primary p-3 mb-3 rounded-3">
+				<h2 class="text-light">Create Task</h2>
+
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-save p-3 text-dark bg-light fs-5 rounded-3"></i>
+				</button>
+			</div>
+
+			<div class="mb-3">
+				<label for="Title" class="form-label">Title: </label>
+				<input type="text" class="form-control" id="Title" name="Title" value="@Model.Title" required />
+			</div>
+
+			<div class="mb-3">
+				<label for="Description" class="form-label">Description: </label>
+				<textarea class="form-control" id="Description" name="Description" rows="4">@Model.Description</textarea>
+			</div>
+
+			<div class="mb-3 d-flex">
+				<div class="me-3">
+					<label for="Deadline" class="form-label">Deadline: </label>
+					<input asp-for="Deadline" type="datetime-local" class="form-control" style="max-width: 180px;" />
+				</div>
+				<div>
+					<label for="Priority" class="form-label">Priority: </label>
+					<select class="form-select" id="Priority" name="Priority" style="max-width: 180px;">
+						<option value="Low">Low</option>
+						<option value="Standart">Standart</option>
+						<option value="High">High</option>
+						<option value="Critical">Critical</option>
+					</select>
+				</div>
+			</div>
+
+			<input type="hidden" name="TodoListId" value="@Model.TodoListId" />
+			<input type="hidden" name="returnUrl" value="@returnUrl" />
+		</form>
+	</div>
+}

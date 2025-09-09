@@ -1,0 +1,26 @@
+@model TodoListApp.Models.TodoList.TodoListModel
+
+@{
+	string description = "Not described";
+
+	if (Model.Description != "") {
+		description = Model.Description ?? "Not described";
+	}
+}
+
+<a asp-controller="TodoList" asp-action="Details" asp-route-id="@Model.TodoListId" class="text-decoration-none link-dark">
+	<div class="bg-white rounded shadow-sm p-3" style="width: 250px; cursor: pointer;">
+		<div class="position-relative" style="height: 150px; background-color: #f0f0f0;">
+			<i class="fas fa-image fa-5x text-muted position-absolute top-50 start-50 translate-middle" style="opacity: 0.3;"></i>
+		</div>
+		<h5 class="mt-2 fw-bold" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@Model.Title</h5>
+		<p class="text-muted small" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@description</p>
+		<div class="d-flex justify-content-between">
+			<p class="text-muted small">@Model.CreatedTime.ToString("yyyy-MM-dd HH:mm")</p>
+			<div class="d-flex justify-content-between align-items-center">
+				<p class="text-muted small">9/12</p>
+			</div>
+		</div>
+	</div>
+</a>
+

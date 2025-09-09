@@ -1,0 +1,167 @@
+@using TodoListApp.WebApp.Helpers
+@using TodoListApp.Models.TodoTask
+@using static TodoListApp.Models.TodoList.TodoAccessModel
+@model TodoListApp.Models.WebApp.TodoTaskWebModel
+
+@{
+	Layout = null;
+
+	var task = Model.TaskModel;
+	var access = Model.AccessLevel;
+
+	var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+
+<div class="d-flex justify-content-between mb-3">
+	<!-- Основной блок -->
+	<div class="bg-white align-items-center rounded shadow-sm p-3 flex-grow-1 border-start border-5
+				@if(!task.IsCompleted)
+				{
+					@if(task.Priority == TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Critical)
+					{
+						@:border-danger
+					}
+					@if(task.Priority == TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.High)
+					{
+						@:border-warning
+					}
+					@if(task.Priority == TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Standart)
+					{
+						@:border-primary
+					}
+				}
+				@if(task.IsCompleted)
+				{
+					@:border-success
+				}">
+		<div class="d-flex align-items-center justify-content-between">
+			<div class="d-flex align-items-center link-dark w-100 text-start">
+				<div class="d-grid w-100 gap-3 task-line-view">
+
+					<h5 class="mb-0 d-inline text-elipsis">@task.Title</h5>
+
+					<p class="mb-0 text-muted text-elipsis">
+						<vc:user user-id=@task.AssignedUserId />
+					</p>
+
+					<p class="text-muted m-0">
+						Priority:
+						<span class="ms-1
+							@(
+								task.Priority switch {
+									TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Critical => "text-danger",
+									TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.High => "text-warning",
+									TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Standart => "text-primary",
+									TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Low => "text-muted",
+									_ => ""
+								}
+							)">
+							<i class="
+								@(
+									task.Priority switch {
+										TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Critical => "fas fa-skull-crossbones",
+										TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.High => "fas fa-exclamation-triangle",
+										TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Standart => "fas fa-circle",
+										TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Low => "fas fa-arrow-down",
+										_ => "fas fa-question-circle"
+									}
+								)
+							"></i>
+							@task.Priority
+						</span>
+					</p>
+
+					<p class="m-0">
+						DeadLine:
+						<span class="
+							@if(task.IsCompleted)
+							{
+								@: text-success
+							}
+							else if(task.IsOverdue)
+							{
+								@: text-danger
+							}
+							else if(task.Deadline - DateTime.UtcNow < TimeSpan.FromDays(1))
+							{
+								@: text-warning
+							}
+							else
+							{
+								@: text-muted
+							}">
+							@if (task.IsCompleted)
+							{
+								@: Completed.
+							}
+							else if (task.IsOverdue)
+							{
+								@: Overdue.
+							}
+							else
+							{
+								@DeadlineHelper.GetDeadlineStatus(task.Deadline)
+							}
+						</span>
+					</p>
+				</div>
+			</div>
+
+			<div class="ms-3 d-flex align-items-center">
+				<a asp-controller="TodoTask" asp-action="Details" asp-route-id="@task.TodoId" class="text-decoration-none me-2">
+					<i class="fas fa-eye p-2 text-dark bg-light fs-6 rounded-3"></i>
+				</a>
+				<a asp-controller="TodoTask" asp-action="Edit" asp-route-id="@task.TodoId" class="text-decoration-none me-2">
+					<i class="fas fa-pen p-2 text-dark bg-light fs-6 rounded-3"></i>
+				</a>
+				<a asp-controller="TodoTask" asp-action="Delete" asp-route-id="@task.TodoId" class="text-decoration-none">
+					<i class="fas fa-trash-alt p-2 text-danger bg-light fs-6 rounded-3"></i>
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="ms-3 d-flex align-items-stretch">
+		@if (task.IsCompleted)
+		{
+			<form asp-controller="TodoTask" asp-action="ChangeCompletionStatus" asp-route-id="@task.TodoId" method="post" class="d-flex">
+				<input type="hidden" name="state" value="false" />
+				<input type="hidden" name="todoListId" value="@task.TodoListId" />
+				<input type="hidden" name="todoId" value="@task.TodoId" />
+				<button type="submit" class="btn btn-danger border-0 rounded-3 d-flex align-items-center justify-content-center
+					@if (!(access == TodoRole.Owner || task.AssignedUserId == userId)) {
+						@: disabled
+					}"
+						style="width: 64px; height: 100%;" title="Refresh status"
+				@if (!(access == TodoRole.Owner || task.AssignedUserId == userId))
+				{
+					@: disabled
+				}>
+					<i class="fa-solid fa-arrow-rotate-right"></i>
+				</button>
+			</form>
+		}
+		else
+		{
+			<form asp-controller="TodoTask" asp-action="ChangeCompletionStatus" asp-route-id="@task.TodoId" method="post" class="d-flex">
+				<input type="hidden" name="state" value="true" />
+				<input type="hidden" name="todoListId" value="@task.TodoListId" />
+				<input type="hidden" name="todoId" value="@task.TodoId" />
+				<button type="submit" class="btn btn-success border-0 rounded-3 d-flex align-items-center justify-content-center
+					@if (!(access == TodoRole.Owner || task.AssignedUserId == userId)) {
+						@: disabled
+					}"
+						style="width: 64px; height: 100%;" title="Complete"
+				@if (!(access == TodoRole.Owner || task.AssignedUserId == userId))
+				{
+					@: disabled
+				}>
+					<i class="fas fa-check"></i>
+				</button>
+			</form>
+		}
+	</div>
+
+</div>
+
+

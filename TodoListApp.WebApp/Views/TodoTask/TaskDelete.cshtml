@@ -1,0 +1,82 @@
+@model TodoListApp.Models.TodoTask.TodoTaskModel
+
+@{
+	Layout = "/Views/TodoList/_TodoListLayout.cshtml";
+
+	Uri? returnUrl = TempData["ReturnUrl"] as Uri;
+}
+
+@section BreadCrumbs {
+	<nav class="fs-5 fw-bold">
+		<span><a href="/TodoLists" class="text-white text-decoration-underline">TodoLists</a></span>
+		<span class="text-white mx-2">/</span>
+		<span><a href="/TodoLists/@Model.TodoListId" class="text-white text-decoration-underline">Tasks</a></span>
+		<span class="text-white mx-2">/</span>
+		<span class="text-white">Delete</span>
+	</nav>
+}
+
+@if (@Model != null)
+{
+	<div class="bg-light p-4 rounded shadow-sm">
+		<form asp-action="Delete" asp-route-id="@Model.TodoId" method="post">
+			<h2 class="mb-4 text-danger">Task deleting</h2>
+			<p class="text-muted">Do you really want to delete this task?</p>
+
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<strong>ID:</strong> @Model.TodoId
+				</div>
+				<div class="col-md-6">
+					<strong>Title:</strong> @Model.Title
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<strong>Description:</strong> @Model.Description
+				</div>
+				<div class="col-md-6">
+					<strong>Deadline:</strong> @Model.Deadline.ToString("g")
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<strong>Created:</strong> @Model.CreatedTime.ToString("g")
+				</div>
+				<div class="col-md-6">
+					<strong>Completed:</strong> @(Model.IsCompleted ? "Yes" : "No")
+				</div>
+			</div>
+
+			<div class="row mb-4">
+				<div class="col-md-6">
+					<strong>Assinged user:</strong> <span class="text-muted">ASSIGNED USER</span>
+				</div>
+			</div>
+
+			<!-- Скрытые поля -->
+
+			@Html.Hidden("TodoId", Model.TodoId)
+			@Html.Hidden("TodoListId", Model.TodoListId)
+			@Html.Hidden("Title", Model.Title)
+			@Html.Hidden("Description", Model.Description)
+			@Html.Hidden("Deadline", Model.Deadline)
+			@Html.Hidden("CreatedTime", Model.CreatedTime)
+			@Html.Hidden("UpdatedTime", Model.UpdatedTime)
+			@Html.Hidden("IsCompleted", Model.IsCompleted)
+			@Html.Hidden("returnUrl", returnUrl)
+
+			<div class="d-flex justify-content-between">
+				<a href="@returnUrl" class="btn btn-outline-secondary">
+					Cancel
+				</a>
+				<button type="submit" class="btn btn-danger">
+					<i class="fas fa-trash-alt me-1"></i> Delete
+				</button>
+			</div>
+		</form>
+	</div>
+
+}

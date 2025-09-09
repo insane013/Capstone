@@ -1,0 +1,69 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.task-line-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr; /* Пропорции для колонок */
+    gap: 1rem; /* Расстояние между колонками */
+    width: 100%;
+}
+
+.sidebar-link {
+    color: #333;
+    text-decoration: none;
+    display: block;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    box-shadow: inset 0 1px 5px #75b8ff, inset 0 -1px 10px rgba(0, 0, 0, 0.05);
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    transition: background-color 0.2s;
+}
+
+.sidebar-link:hover {
+    background-color: #e2e6ea;
+}
+
+.sidebar-link::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 10px solid #dee2e6;
+}
+
+.text-elipsis
+{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.last-child-mb-0:last-child {
+    margin-bottom: 0;
+}

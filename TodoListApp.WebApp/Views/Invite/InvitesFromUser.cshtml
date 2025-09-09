@@ -1,0 +1,36 @@
+@using TodoListApp.Models.Invite
+@model List<TodoListApp.Models.Invite.InviteModel>
+
+@{
+	Layout = "/Views/TodoList/_TodoListLayout.cshtml";
+}
+
+@section BreadCrumbs {
+	<nav class="fs-5 fw-bold">
+		<span><a asp-action="AllTodoLists" asp-controller="TodoList" class="text-white text-decoration-underline">TodoLists</a></span>
+		<span class="text-white mx-2">/Invites</span>
+	</nav>
+}
+
+@section HeaderMain {
+	@if (@Model != null)
+	{
+		<div class="bg-white p-3">
+			<div class="mb-3 d-flex align-items-md-center">
+				<h5 class="text-primary fw-bold me-3">Your invites</h5>
+			</div>
+		</div>
+	}
+}
+
+@if (Model != null && Model.Any())
+{
+	@foreach (var task in Model)
+	{
+		@await Html.PartialAsync("_InviteFromUserPartialLine.cshtml", task)
+	}
+}
+else
+{
+	<div class="bg-white rounded p-3 text-muted">No Invites yet..</div>
+}

@@ -1,0 +1,38 @@
+@model TodoListApp.Models.WebApp.ReassignUserWebModel
+
+@{
+	var list = Model.AvailableUsers.Select(u => new SelectListItem
+			{
+				Value = u.UserId.ToString(),
+				Text = u.Email,
+				Selected = u.UserId == Model.CurrentUserId
+			})
+	.ToList();
+
+	string? lastUri = Context.Request.Headers.Referer;
+
+	if (string.IsNullOrEmpty(lastUri))
+	{
+		lastUri = "/";
+	}
+}
+
+<form id="reassignUserForm" asp-controller="TodoTask" asp-action="ReAssignUser" method="post">
+	<div class="modal-header">
+		<h5 class="modal-title" id="reassignModalLabel">Assign another user for task #@Model.TodoId</h5>
+		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	</div>
+	<div class="modal-body">
+		<input type="hidden" name="TodoId" value="@Model.TodoId" />
+		<input type="hidden" name="TodoListId" value="@Model.TodoListId" />
+		<input type="hidden" name="lastUri" value="@lastUri" />
+		<div class="mb-3">
+			<label for="UserId" class="form-label">Select user</label>
+			<select id="reassignUserSelect" name="OtherUserId" asp-items="@list" class="form-select"></select>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+		<button id="reassignUserSubmit" type="submit" class="btn btn-primary disabled" disabled">Save</button>
+	</div>
+</form>

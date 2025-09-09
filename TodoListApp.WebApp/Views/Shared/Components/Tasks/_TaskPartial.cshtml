@@ -1,0 +1,215 @@
+@using TodoListApp.WebApp.Helpers
+@using TodoListApp.Models.TodoTask
+@model TodoListApp.Models.TodoTask.TodoTaskModel
+
+@{
+	Layout = null;
+}
+
+<div class="d-flex align-items-baseline justify-content-between mb-3 pe-3">
+	<!-- Основной блок -->
+	<div class="bg-white rounded shadow-sm p-3 flex-grow-1 border-start border-5
+				@if(!Model.IsCompleted)
+				{
+					@if(Model.Priority == TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Critical)
+					{
+						@:border-danger
+					}
+					@if(Model.Priority == TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.High)
+					{
+						@:border-warning
+					}
+					@if(Model.Priority == TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Standart)
+					{
+						@:border-primary
+					}
+				}
+				@if(Model.IsCompleted)
+				{
+					@:border-success
+				}">
+		<div class="d-flex align-items-center justify-content-between">
+			<button class="btn btn-link d-flex align-items-center text-decoration-none link-dark w-100 text-start toggle-details" type="button" data-task-id="@Model.TodoId">
+				<div class="d-grid w-100 gap-3 task-line-view">
+					<!-- Колонка для названия -->
+					<h5 class="mb-0 d-inline" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@Model.Title</h5>
+
+					<p class="mb-0 text-muted">
+						Assigned user:
+						<vc:user user-id=@Model.AssignedUserId />
+					</p>
+
+					<p class="text-muted m-0">
+						Priority:
+						<span class="ms-1
+							@(
+								Model.Priority switch {
+									TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Critical => "text-danger",
+									TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.High => "text-warning",
+									TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Standart => "text-primary",
+									TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Low => "text-muted",
+									_ => ""
+								}
+							)">
+												<i class="
+								@(
+									Model.Priority switch {
+										TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Critical => "fas fa-skull-crossbones",
+										TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.High => "fas fa-exclamation-triangle",
+										TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Standart => "fas fa-circle",
+										TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Low => "fas fa-arrow-down",
+										_ => "fas fa-question-circle"
+									}
+								)
+							"></i>
+							@Model.Priority
+						</span>
+					</p>
+
+
+					<!-- Колонка для дедлайна -->
+					<p class="m-0">
+						DeadLine:
+						<span class="
+							@if(Model.IsCompleted)
+							{
+								@: text-success
+							}
+							else if(Model.IsOverdue)
+							{
+								@: text-danger
+							}
+							else if(Model.Deadline - DateTime.UtcNow < TimeSpan.FromDays(1))
+							{
+								@: text-warning
+							}
+							else
+							{
+								@: text-muted
+							}">
+							@if (Model.IsCompleted) {
+								@: Completed.
+							}
+							else if (Model.IsOverdue)
+							{
+								@: Overdue.
+							}
+							else
+							{
+								@DeadlineHelper.GetDeadlineStatus(Model.Deadline)
+							}
+						</span>
+					</p>
+				</div>
+			</button>
+
+			<div class="ms-3 d-flex align-items-center">
+				<a asp-controller="TodoTask" asp-action="Edit" asp-route-id="@Model.TodoId" class="text-decoration-none me-2">
+					<i class="fas fa-pen p-2 text-dark bg-light fs-6 rounded-3"></i>
+				</a>
+				<a asp-controller="TodoTask" asp-action="Delete" asp-route-id="@Model.TodoId" class="text-decoration-none">
+					<i class="fas fa-trash-alt p-2 text-danger bg-light fs-6 rounded-3"></i>
+				</a>
+			</div>
+		</div>
+
+		<!-- Скрытое описание -->
+		<div class="mt-3 p-3 d-none" id="details-@Model.TodoId">
+			<h5 class="text-primary fw-bold mb-3">Task Details</h5>
+			<table class="table table-borderless m-0">
+				<tbody>
+					<tr>
+						<th scope="row">Description:</th>
+						<td colspan="3" class="text-muted">@Model.Description</td>
+					</tr>
+					<tr>
+						<th scope="row" class="text-nowrap">Created at:</th>
+						<td class="text-muted">@Model.CreatedTime.ToString("yyyy-MM-dd HH:mm")</td>
+						<th scope="row" class="text-nowrap">Last update:</th>
+						<td class="text-muted">
+							@if (Model.UpdatedTime != null)
+							{
+								@Model.UpdatedTime?.ToString("yyyy-MM-dd HH:mm")
+							}
+							else
+							{
+								<span class="fst-italic">Not updated yet</span>
+							}
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="text-nowrap">Deadline:</th>
+						<td><span class="text-warning">@Model.Deadline.ToString("yyyy-MM-dd HH:mm")</span></td>
+						<th scope="row" class="text-nowrap">Priority:</th>
+						<td>
+							<span class="text-muted">
+								<i class="
+                            @(
+                                Model.Priority switch {
+                                    TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Critical => "fas fa-skull-crossbones text-danger",
+                                    TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.High => "fas fa-exclamation-triangle text-warning",
+                                    TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Standart => "fas fa-circle text-primary",
+                                    TodoListApp.Models.TodoTask.TodoTaskModel.TaskPriority.Low => "fas fa-arrow-down text-muted",
+                                    _ => "fas fa-question-circle"
+                                }
+                            ) me-1">
+								</i>
+								@Model.Priority
+							</span>
+							<button type="button" class="btn btn-outline-secondary btn-sm ms-3 d-inline-flex align-items-center"
+									data-bs-toggle="modal" data-bs-target="#priorityModal"
+									data-task-id="@Model.TodoId" data-list-id="@Model.TodoListId" data-priority="@Model.Priority">
+								<i class="fas fa-arrow-up-wide-short me-1"></i> Change
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">Assigned user:</th>
+						<td colspan="3">
+							<vc:user user-id=@Model.AssignedUserId />
+							<button type="button" class="reassign-btn btn btn-outline-primary btn-sm ms-3 d-inline-flex align-items-center"
+									data-bs-toggle="modal" data-bs-target="#reassignModal"
+									data-task-id="@Model.TodoId" data-todo-list-id="@Model.TodoListId" data-user-id="@Model.AssignedUserId">
+								<i class="fas fa-user-edit me-1"></i> Change
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+	</div>
+
+	<!-- Кнопка завершения -->
+	<div class="ms-3">
+		@if (Model.IsCompleted)
+		{
+			<form asp-controller="TodoTask" asp-action="ChangeCompletionStatus" asp-route-id="@Model.TodoId" method="post">
+				<input type="hidden" name="state" value="false" />
+				<input type="hidden" name="todoListId" value="@Model.TodoListId" />
+				<input type="hidden" name="todoId" value="@Model.TodoId" />
+				<button type="submit" class="btn btn-danger p-3 rounded-3 border-0 fixed-width" title="Refresh status">
+					<i class="fa-solid fa-arrow-rotate-right"></i>
+					Refresh
+				</button>
+			</form>
+		}
+		else
+		{
+			<form asp-controller="TodoTask" asp-action="ChangeCompletionStatus" asp-route-id="@Model.TodoId" method="post">
+				<input type="hidden" name="state" value="true" />
+				<input type="hidden" name="todoListId" value="@Model.TodoListId" />
+				<input type="hidden" name="todoId" value="@Model.TodoId" />
+				<button type="submit" class="btn btn-success p-3 rounded-3 border-0 fixed-width" title="Complete">
+					<i class="fas fa-check"></i>
+					Complete
+				</button>
+			</form>
+		}
+	</div>
+
+
+</div>
+
+

@@ -1,0 +1,23 @@
+@{
+	Layout = "_Layout";
+}
+
+@section PageHeader {
+	<div class="d-flex flex-column rounded-3 border-bottom shadow-sm">
+		<div class="d-flex align-items-center bg-primary py-3 px-2">
+			<button class="btn btn-sm d-flex align-items-center" onclick="history.back()">
+				<i class="fas fa-chevron-left me-1 text-white fs-5"></i>
+			</button>
+			@await RenderSectionAsync("BreadCrumbs", required: false)
+		</div>
+	</div>
+
+	@await RenderSectionAsync("HeaderMain", required: false)
+}
+
+@RenderBody()
+
+@section Scripts
+{
+	@await RenderSectionAsync("Scripts", required: false)
+}

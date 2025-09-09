@@ -1,0 +1,63 @@
+@model TodoListApp.Models.TodoList.TodoListModel
+
+@{
+	Layout = "/Views/TodoList/_TodoListLayout.cshtml";
+	Uri? returnUrl = TempData["ReturnUrl"] as Uri;
+}
+
+@section BreadCrumbs {
+	<nav class="fs-5 fw-bold">
+		<span><a href="/TodoLists" class="text-white text-decoration-underline">TodoLists</a></span>
+		<span class="text-white mx-2">/</span>
+		<span class="text-white">Delete</span>
+	</nav>
+}
+
+@if (Model != null)
+{
+	<div class="bg-white border-start border-4 border-danger rounded-4 shadow-sm p-4">
+		<form asp-action="DeletePost" asp-route-id="@Model.TodoListId" method="post">
+			<h2 class="mb-3 text-danger">Delete Todo List</h2>
+			<p class="text-muted fs-5">Are you sure you want to delete the following Todo List?</p>
+
+			<div class="table-responsive mb-3">
+				<table class="table table-bordered table-striped bg-light rounded">
+					<tbody>
+						<tr>
+							<th scope="row" class="w-25">ID</th>
+							<td>@Model.TodoListId</td>
+						</tr>
+						<tr>
+							<th scope="row">Title</th>
+							<td>@Model.Title</td>
+						</tr>
+						<tr>
+							<th scope="row">Description</th>
+							<td>@Model.Description</td>
+						</tr>
+						<tr>
+							<th scope="row">Tasks</th>
+							<td>9</td>
+						</tr>
+						<tr>
+							<th scope="row">Created at</th>
+							<td>@Model.CreatedTime</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<p class="text-danger fw-bold">⚠ All related tasks will also be deleted.</p>
+
+			<input type="hidden" name="TodoId" value="@Model.TodoListId" />
+			<input type="hidden" name="Title" value="@Model.Title" />
+			<input type="hidden" name="Description" value="@Model.Description" />
+
+			<input type="hidden" name="returnUrl" value="@returnUrl" />
+
+			<button type="submit" class="btn btn-outline-danger px-4 py-2 fw-bold">
+				<i class="fas fa-trash-alt me-2"></i> Yes, delete this
+			</button>
+		</form>
+	</div>
+}
